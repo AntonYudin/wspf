@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<project name="application-wspf">
+
+
+	<property name="applicationName" value="wspf"/>
+	<property name="earDir" value="target/application-1.0"/>
+	<property name="earFile" value="target/${applicationName}.ear"/>
+
+	<hostinfo prefix="host"/>
+
+	<property file="build.${host.NAME}.properties"/>
+	<property file="build.${os.name}.properties"/>
+
+	<property name="deploy.directory" value="${serverRoot}/standalone/deployments"/>
+
+
+	<target name="print-environment">
+
+		<echo message="host: ${host.NAME}"/>
+		<echo message="os.name: ${os.name}"/>
+		<echo message="os.arch: ${os.arch}"/>
+		<echo message="serverRoot: ${serverRoot}"/>
+		<echo message="user.home: ${user.home}"/>
+
+		<echo message="scp.port: ${scp.port}"/>
+		<echo message="scp.passphrase: ${scp.passphrase}"/>
+		<echo message="scp.todir: ${scp.todir}"/>
+		<echo message="scp.keyfile: ${scp.keyfile}"/>
+
+	</target>
+
+	<target name="undeploy" depends="print-environment">
+
+		<delete dir="${deploy.directory}/${applicationName}.ear"/>
+		<delete file="${deploy.directory}/${applicationName}.ear.dodeploy"/>
+		<delete file="${deploy.directory}/${applicationName}.ear.deployed"/>
+
+	</target>
+
+
+
+	<target name="deploy" depends="undeploy,print-environment">
+
+		<copy todir="${deploy.directory}/${applicationName}.ear">
+			<fileset dir="${earDir}"/>
+		</copy>
+
+		<touch file="${deploy.directory}/${applicationName}.ear.dodeploy"/>
+
+	</target>
+
+
+	<target name="deploy-remote" depends="print-environment">
+
+		<scp
+			file="${earFile}"
+			todir="${scp.todir}/${applicationName}.ear"
+			keyfile="${scp.keyfile}"
+			port="${scp.port}"
+			trust="true"
+			passphrase="${scp.passphrase}"
+		/>
+
+		<scp
+			file="${applicationName}.ear.dodeploy"
+			todir="${scp.todir}/${applicationName}.ear.dodeploy"
+			keyfile="${scp.keyfile}"
+			port="${scp.port}"
+			trust="true"
+			passphrase="${scp.passphrase}"
+		/>
+
+	</target>
+
+
+</project>
+
